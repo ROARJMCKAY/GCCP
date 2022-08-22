@@ -18,11 +18,12 @@ export 'dart:convert' show jsonEncode, jsonDecode;
 export 'package:intl/intl.dart';
 export 'package:page_transition/page_transition.dart';
 export 'internationalization.dart' show FFLocalizations;
+export 'nav/nav.dart';
 
-T valueOrDefault<T>(T value, T defaultValue) =>
+T valueOrDefault<T>(T? value, T defaultValue) =>
     (value is String && value.isEmpty) || value == null ? defaultValue : value;
 
-String dateTimeFormat(String format, DateTime dateTime) {
+String dateTimeFormat(String format, DateTime? dateTime) {
   if (dateTime == null) {
     return '';
   }
@@ -57,18 +58,18 @@ enum DecimalType {
 }
 
 String formatNumber(
-  num value, {
-  FormatType formatType,
-  DecimalType decimalType,
-  String currency,
+  num? value, {
+  required FormatType formatType,
+  DecimalType? decimalType,
+  String? currency,
   bool toLowerCase = false,
-  String format,
-  String locale,
+  String? format,
+  String? locale,
 }) {
   var formattedValue = '';
   switch (formatType) {
     case FormatType.decimal:
-      switch (decimalType) {
+      switch (decimalType!) {
         case DecimalType.automatic:
           formattedValue = NumberFormat.decimalPattern().format(value);
           break;
@@ -137,7 +138,7 @@ bool get isAndroid => !kIsWeb && Platform.isAndroid;
 bool get isiOS => !kIsWeb && Platform.isIOS;
 bool get isWeb => kIsWeb;
 bool responsiveVisibility({
-  @required BuildContext context,
+  required BuildContext context,
   bool phone = true,
   bool tablet = true,
   bool tabletLandscape = true,
@@ -162,7 +163,7 @@ const kTextValidatorWebsiteRegex =
     r'(https?:\/\/)?(www\.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)|(https?:\/\/)?(www\.)?(?!ww)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)';
 
 void setAppLanguage(BuildContext context, String language) =>
-    MyApp.of(context).setLocale(Locale(language, ''));
+    MyApp.of(context).setLocale(language);
 
 void setDarkModeSetting(BuildContext context, ThemeMode themeMode) =>
     MyApp.of(context).setThemeMode(themeMode);
@@ -198,7 +199,7 @@ void showSnackbar(
 }
 
 extension FFStringExt on String {
-  String maybeHandleOverflow({int maxChars, String replacement = ''}) =>
+  String maybeHandleOverflow({int? maxChars, String replacement = ''}) =>
       maxChars != null && length > maxChars
           ? replaceRange(maxChars, null, replacement)
           : this;

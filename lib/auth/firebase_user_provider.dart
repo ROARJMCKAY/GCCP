@@ -3,11 +3,11 @@ import 'package:rxdart/rxdart.dart';
 
 class GccpFirebaseUser {
   GccpFirebaseUser(this.user);
-  User user;
+  User? user;
   bool get loggedIn => user != null;
 }
 
-GccpFirebaseUser currentUser;
+GccpFirebaseUser? currentUser;
 bool get loggedIn => currentUser?.loggedIn ?? false;
 Stream<GccpFirebaseUser> gccpFirebaseUserStream() => FirebaseAuth.instance
     .authStateChanges()

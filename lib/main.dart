@@ -1,7 +1,7 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'auth/firebase_user_provider.dart';
 
 import 'flutter_flow/flutter_flow_theme.dart';
@@ -9,6 +9,7 @@ import 'flutter_flow/flutter_flow_util.dart';
 import 'flutter_flow/internationalization.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'flutter_flow/nav/nav.dart';
 import 'index.dart';
 
 void main() async {
@@ -25,29 +26,33 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 
   static _MyAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_MyAppState>();
+      context.findAncestorStateOfType<_MyAppState>()!;
 }
 
 class _MyAppState extends State<MyApp> {
-  Locale _locale;
+  Locale? _locale;
   ThemeMode _themeMode = FlutterFlowTheme.themeMode;
 
-  Stream<GccpFirebaseUser> userStream;
-  GccpFirebaseUser initialUser;
-  bool displaySplashImage = true;
+  late Stream<GccpFirebaseUser> userStream;
+
+  late AppStateNotifier _appStateNotifier;
+  late GoRouter _router;
 
   @override
   void initState() {
     super.initState();
+    _appStateNotifier = AppStateNotifier();
+    _router = createRouter(_appStateNotifier);
     userStream = gccpFirebaseUserStream()
-      ..listen((user) => initialUser ?? setState(() => initialUser = user));
+      ..listen((user) => _appStateNotifier.update(user));
     Future.delayed(
       Duration(seconds: 1),
-      () => setState(() => displaySplashImage = false),
+      () => _appStateNotifier.stopShowingSplashImage(),
     );
   }
 
-  void setLocale(Locale value) => setState(() => _locale = value);
+  void setLocale(String language) =>
+      setState(() => _locale = createLocale(language));
   void setThemeMode(ThemeMode mode) => setState(() {
         _themeMode = mode;
         FlutterFlowTheme.saveThemeMode(mode);
@@ -55,7 +60,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'GCCP',
       localizationsDelegates: [
         FFLocalizationsDelegate(),
@@ -65,32 +70,21 @@ class _MyAppState extends State<MyApp> {
       ],
       locale: _locale,
       supportedLocales: const [
-        Locale('en', ''),
+        Locale('en'),
       ],
       theme: ThemeData(brightness: Brightness.light),
       darkTheme: ThemeData(brightness: Brightness.dark),
       themeMode: _themeMode,
-      home: initialUser == null || displaySplashImage
-          ? Container(
-              color: Colors.transparent,
-              child: Builder(
-                builder: (context) => Image.asset(
-                  'assets/images/background.gif',
-                  fit: BoxFit.fill,
-                ),
-              ),
-            )
-          : currentUser.loggedIn
-              ? NavBarPage()
-              : HomePageWidget(),
+      routeInformationParser: _router.routeInformationParser,
+      routerDelegate: _router.routerDelegate,
     );
   }
 }
 
 class NavBarPage extends StatefulWidget {
-  NavBarPage({Key key, this.initialPage}) : super(key: key);
+  NavBarPage({Key? key, this.initialPage}) : super(key: key);
 
-  final String initialPage;
+  final String? initialPage;
 
   @override
   _NavBarPageState createState() => _NavBarPageState();
